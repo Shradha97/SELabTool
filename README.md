@@ -20,7 +20,7 @@ The repository contains a single python file for performing the above task.
 1. Open Python IDLE (Python 3.5) and open the code with the editor.
 2. Run the code by pressing F5.
 3. Enter the name of the repository to check.
-4. The data will be displayed
+4. The data will be displayed for the first 2 pull requests only(for testing purposes).
 
 ### To Do
 
