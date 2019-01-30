@@ -10,6 +10,7 @@
 ### Current Status:
 
 The tools take a repository name (example - korolvs/snake_nn) and checks the merged pull request and calculates the cyclomatic complexity as well as other details about each function and displays it.
+Also, for each of the original file/pull request, the varaition of the CC is displayed graphically.
 
 ### Repository Structure:
 
@@ -28,3 +29,4 @@ The repository contains a single python file for performing the above task.
 2. GUI
 3. Displaying only relavant data based on user needs
 4. Showing software evolution through cyclomatic complexity.
+5. Currently, the variation of CC for the whole file is shown, variation of CC for individual functions of each pull request has to be displayed.
