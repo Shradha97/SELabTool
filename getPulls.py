@@ -98,22 +98,26 @@ def prettyPrint(analysis):
             print()
     print('\n\n')
 
-repo = "korolvs/snake_nn"
+repo = input("Enter repository name:")
+#repo = "korolvs/snake_nn"
 
 if __name__ == "__main__":
     print("Fetching Pull requests")
     rjson = getPulls(repo)
-    print("Getting fork names")
-    repos = getForkNames(rjson)[:2]
-    repoFolders = []
-    print("Cloning All Repositories("+str(len(repos))+")")
-    for num,repo in enumerate(repos):
-        print("Cloning repository",num+1)
-        repoFolders.append(cloneRepo(repo,"testFile"+str(num+1)))
-    print("Cloning complete. Performing analysis\n")
-    for i in range(len(repoFolders)):
-        print("Repository : ",repos[i],'\n')
-        prettyPrint(applyLizard(getFiles(repoFolders[i])))
-        print("----------------------------------------------------------------------------------------")
-    print()
+    if type(rjson) == type({'a':'b'}):
+        print("Repository not found")
+    else:
+        print("Getting fork names")
+        repos = getForkNames(rjson)[:2]
+        repoFolders = []
+        print("Cloning All Repositories("+str(len(repos))+")")
+        for num,repo in enumerate(repos):
+            print("Cloning repository",num+1)
+            repoFolders.append(cloneRepo(repo,"testFile"+str(num+1)))
+        print("Cloning complete. Performing analysis\n")
+        for i in range(len(repoFolders)):
+            print("Repository : ",repos[i],'\n')
+            prettyPrint(applyLizard(getFiles(repoFolders[i])))
+            print("----------------------------------------------------------------------------------------")
+        print()
 ## cloneRepo("https://github.com/RohithS98/Pysnake.git","test")
