@@ -5,6 +5,7 @@ import os
 import stat
 import lizard
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 #Valid extensions for applying code complexity analysis
 extensions = {
@@ -59,12 +60,14 @@ def cloneRepo(gitrepo,dirName):
 #Scans all the files in a directory and extracts file paths which have supported extensions
 def getFiles(rootDir):
     paths = []
+    newfiles = []
     for subdir, dirs, files in os.walk(rootDir):
         for file in files:
             filepath = Path(subdir + os.sep + file)
             if filepath.suffix in extensions:
+                newfiles.append(file)
                 paths.append(str(filepath))
-    return paths
+    return paths, newfiles
 
 #Applies analysis on all the files on the list of files
 def applyLizard(fileList):
@@ -80,26 +83,58 @@ def displayMetaData(fileInfo):
     print("Token Count: ",fileInfo.token_count)
 
 #Display Function Data
-def displayFunctionData(func):
+def displayFunctionData(func, CCsum):
+    CC=func.cyclomatic_complexity
     print(func.long_name)
     print("\tLines of Code: ",func.nloc)
     print("\tToken Count: ",func.token_count)
-    print("\tCyclomatic Complexity: ",func.cyclomatic_complexity)
+    print("\tCyclomatic Complexity: ",CC)
+    return CCsum+CC
+
 
 #Displays the analysis results cleanly
 def prettyPrint(analysis):
     print()
+    totalCCsum = []
     for file in analysis:
+        CCsum = 0
         displayMetaData(analysis[file])
         print("\nFunctions:")
         for num,fun in enumerate(analysis[file].function_list):
             print(num+1,'. ',end='')
-            displayFunctionData(fun)
+            CCsum = displayFunctionData(fun, CCsum)
             print()
+        totalCCsum.append(CCsum)
     print('\n\n')
+    return totalCCsum
 
-repo = input("Enter repository name:")
-#repo = "korolvs/snake_nn"
+#Displays the variation of CC over the pull requests on a graph
+def prettyPrintGraph():
+    #For testfile 1
+    X1 = list(graphinfo["TestFile1"].keys())
+    Y1 = list(graphinfo["TestFile1"].values())
+
+    #For testfile 2
+    X2 = list(graphinfo["TestFile2"].keys())
+    Y2 = list(graphinfo["TestFile2"].values())
+
+    plt.subplot(2,1,1)
+    plt.plot(X1, Y1)
+    plt.ylabel("Cyclomatic Complexity")
+    plt.xlabel("Pull Requests")
+    plt.title("CC visualization for TestFile1")
+
+    plt.subplot(2,1,2)
+    plt.plot(X2, Y2)
+    plt.ylabel("Cyclomatic Complexity")
+    plt.xlabel("Pull Requests")
+    plt.title("CC visualization for TestFile2")
+
+    plt.subplots_adjust(hspace=1)
+    plt.show()
+
+
+repo = "korolvs/snake_nn"
 
 if __name__ == "__main__":
     print("Fetching Pull requests")
@@ -113,13 +148,24 @@ if __name__ == "__main__":
             print("No merged pulls found")
         else:
             repoFolders = []
+            graphinfo = {}
             print("Cloning All Repositories("+str(len(repos))+")")
             for num,repo in enumerate(repos):
                 print("Cloning repository",num+1)
                 repoFolders.append(cloneRepo(repo,"testFile"+str(num+1)))
             print("Cloning complete. Performing analysis\n")
             for i in range(len(repoFolders)):
+                info = {}
                 print("Repository : ",repos[i],'\n')
-                prettyPrint(applyLizard(getFiles(repoFolders[i])))
-                print("----------------------------------------------------------------------------------------")
-            print()
+                paths, newfiles = getFiles(repoFolders[i])
+                totalCCsum = prettyPrint(applyLizard(paths))
+                for j, name in enumerate(newfiles):
+                    info[newfiles[j]]=totalCCsum[j]
+                graphinfo["TestFile"+str(i+1)]=info
+        print("----------------------------------------------------------------------------------------")
+    print("Analysis complete. Visualizing CC variation for pull requests\n")
+    prettyPrintGraph()
+    print()
+
+
+## cloneRepo("https://github.com/RohithS98/Pysnake.git","test")
