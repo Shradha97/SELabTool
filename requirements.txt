@@ -1,0 +1,2 @@
+lizard==1.15.7
+GitPython==2.1.11
